@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "225928288894",
+    "firebase_url": "https://geekbrainskotlin.firebaseio.com",
+    "project_id": "geekbrainskotlin",
+    "storage_bucket": "geekbrainskotlin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225928288894:android:35f60201b069a94c",
+        "android_client_info": {
+          "package_name": "com.geekbrains.geekbrainskotlin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "225928288894-bj55g6sog6ggcols8p4dotadm4otifob.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj7XMNznP0PXmM6aFZlDZKcTQ9lxZtPog"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

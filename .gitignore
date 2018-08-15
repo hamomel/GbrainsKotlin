@@ -1,0 +1,12 @@
+# Ignore everything 
+/*
+
+# and /app/build
+/app/build/
+
+# Except for this
+!/app/
+!build.gradle
+!settings.gradle
+!.gitignore
+
