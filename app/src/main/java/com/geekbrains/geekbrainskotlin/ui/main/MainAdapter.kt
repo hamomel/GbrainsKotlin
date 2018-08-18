@@ -10,7 +10,7 @@ import com.geekbrains.geekbrainskotlin.data.model.Note
 
 class MainAdapter : RecyclerView.Adapter<NoteViewHolder>() {
 
-    var notes: List<Note> = listOf<Note>()
+    var notes: List<Note> = listOf()
         set(value) {
             field = value
             notifyDataSetChanged()

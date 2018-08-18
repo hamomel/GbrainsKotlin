@@ -16,9 +16,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
+
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         adapter = MainAdapter()
-        mainRecycler.layoutManager = GridLayoutManager(this, 2)
         mainRecycler.adapter = adapter
 
         viewModel.viewState().observe(this, Observer<MainViewState> { t ->
