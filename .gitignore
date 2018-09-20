@@ -4,6 +4,8 @@
 # and /app/build
 /app/build/
 
+**/*.iml
+
 # Except for this
 !/app/
 !build.gradle
