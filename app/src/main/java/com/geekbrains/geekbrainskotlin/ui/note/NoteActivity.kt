@@ -11,10 +11,10 @@ import android.view.MenuItem
 import com.geekbrains.geekbrainskotlin.R
 import com.geekbrains.geekbrainskotlin.data.model.Color
 import com.geekbrains.geekbrainskotlin.data.model.Note
-import com.geekbrains.geekbrainskotlin.extensions.DATE_TIME_FORMAT
+import com.geekbrains.geekbrainskotlin.extensions.format
+import com.geekbrains.geekbrainskotlin.extensions.getColorInt
 import com.geekbrains.geekbrainskotlin.ui.base.BaseActivity
 import kotlinx.android.synthetic.main.activity_note.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 private const val SAVE_DELAY = 2000L
@@ -23,11 +23,10 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
 
     companion object {
         private val EXTRA_NOTE = NoteActivity::class.java.name + "extra.NOTE"
-        fun getStartIntent(context: Context, note: String?): Intent {
-            val intent = Intent(context, NoteActivity::class.java)
-            intent.putExtra(EXTRA_NOTE, note)
-            return intent
-        }
+        fun getStartIntent(context: Context, note: String?) =
+                Intent(context, NoteActivity::class.java).apply {
+                    putExtra(EXTRA_NOTE, note)
+                }
     }
 
     override val viewModel: NoteViewModel by lazy { ViewModelProviders.of(this).get(NoteViewModel::class.java) }
@@ -51,12 +50,12 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val noteId = intent.getStringExtra(EXTRA_NOTE)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if (noteId != null) {
-            viewModel.loadNote(noteId)
+        val noteId = intent.getStringExtra(EXTRA_NOTE)
+        noteId?.let {
+            viewModel.loadNote(it)
             supportActionBar?.title = getString(R.string.new_note_title)
         }
 
@@ -70,48 +69,35 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
     }
 
     private fun initView() {
-        if (note != null) {
-            supportActionBar?.title =
-                    SimpleDateFormat(DATE_TIME_FORMAT, Locale.getDefault()).format(note!!.lastChanged)
+        note?.run {
+            supportActionBar?.title = lastChanged.format()
 
-            titleEt.setText(note?.title ?: "")
-            bodyEt.setText(note?.note ?: "")
-            val color = when(note!!.color) {
-                Color.WHITE -> R.color.color_white
-                Color.VIOLET -> R.color.color_violet
-                Color.YELLOW -> R.color.color_yello
-                Color.RED -> R.color.color_red
-                Color.PINK -> R.color.color_pink
-                Color.GREEN -> R.color.color_green
-                Color.BLUE -> R.color.color_blue
-            }
+            titleEt.setText(title)
+            bodyEt.setText(body)
 
-            toolbar.setBackgroundColor(resources.getColor(color))
+            toolbar.setBackgroundColor(color.getColorInt(this@NoteActivity))
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when(item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        android.R.id.home -> {
+            onBackPressed()
+            true
         }
+        else -> super.onOptionsItemSelected(item)
+    }
 
 
     private fun triggerSaveNote() {
         if (titleEt.text.length < 3 && bodyEt.text.length < 3) return
 
-        Handler().postDelayed(object : Runnable {
-            override fun run() {
-                note = note?.copy(title = titleEt.text.toString(),
-                        note = bodyEt.text.toString(),
-                        lastChanged = Date())
-                        ?: createNewNote()
+        Handler().postDelayed({
+            note = note?.copy(title = titleEt.text.toString(),
+                    body = bodyEt.text.toString(),
+                    lastChanged = Date())
+                    ?: createNewNote()
 
-                if (note != null) viewModel.saveChanges(note!!)
-            }
-
+            note?.let { viewModel.saveChanges(it) }
         }, SAVE_DELAY)
     }
 
