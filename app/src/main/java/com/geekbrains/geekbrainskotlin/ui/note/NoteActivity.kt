@@ -1,37 +1,43 @@
 package com.geekbrains.geekbrainskotlin.ui.note
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.geekbrains.geekbrainskotlin.R
 import com.geekbrains.geekbrainskotlin.data.model.Color
 import com.geekbrains.geekbrainskotlin.data.model.Note
 import com.geekbrains.geekbrainskotlin.extensions.format
 import com.geekbrains.geekbrainskotlin.extensions.getColorInt
 import com.geekbrains.geekbrainskotlin.ui.base.BaseActivity
+import com.geekbrains.geekbrainskotlin.ui.note.NoteViewState.Data
 import kotlinx.android.synthetic.main.activity_note.*
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.startActivity
+import org.koin.android.viewmodel.ext.android.viewModel
 import java.util.*
 
-private const val SAVE_DELAY = 2000L
+private const val SAVE_DELAY = 1000L
 
-class NoteActivity : BaseActivity<Note?, NoteViewState>() {
+class NoteActivity : BaseActivity<Data, NoteViewState>() {
 
     companion object {
-        private val EXTRA_NOTE = NoteActivity::class.java.name + "extra.NOTE"
-        fun getStartIntent(context: Context, note: String?) =
-                Intent(context, NoteActivity::class.java).apply {
-                    putExtra(EXTRA_NOTE, note)
-                }
+        private val EXTRA_NOTE_ID = NoteActivity::class.java.name + "extra.NOTE_ID"
+
+        fun start(context: Context, noteId: String?) =
+                context.startActivity<NoteActivity>(EXTRA_NOTE_ID to noteId)
     }
 
-    override val viewModel: NoteViewModel by lazy { ViewModelProviders.of(this).get(NoteViewModel::class.java) }
+    override val model: NoteViewModel by viewModel()
     override val layoutRes: Int = R.layout.activity_note
     private var note: Note? = null
+    private var color = Color.WHITE
+    private val noteId by lazy { intent.getStringExtra(EXTRA_NOTE_ID) }
+
 
     private val textChangeListener = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
@@ -53,40 +59,91 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val noteId = intent.getStringExtra(EXTRA_NOTE)
-        noteId?.let {
-            viewModel.loadNote(it)
+        if (noteId == null) {
             supportActionBar?.title = getString(R.string.new_note_title)
+        } else {
+            progressView.visibility = View.VISIBLE
+            model.loadNote(noteId)
         }
 
+        colorPicker.onColorClickListener = {
+            color = it
+            setToolbarColor(it)
+            triggerSaveNote()
+        }
+
+        setEditListener()
+    }
+
+    private fun setEditListener() {
         titleEt.addTextChangedListener(textChangeListener)
         bodyEt.addTextChangedListener(textChangeListener)
     }
 
-    override fun renderData(data: Note?) {
-        this.note = data
+    private fun removeEditListener() {
+        titleEt.removeTextChangedListener(textChangeListener)
+        bodyEt.removeTextChangedListener(textChangeListener)
+    }
+
+    private fun setToolbarColor(color: Color) {
+        toolbar.setBackgroundColor(color.getColorInt(this))
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean =
+            menuInflater.inflate(R.menu.note_menu, menu).let { true }
+
+    override fun renderData(data: Data) {
+        if (data.isDeleted) finish()
+        progressView.visibility = if (noteId != null && data.note == null) View.VISIBLE else View.GONE
+
+        this.note = data.note
+        data.note?.let { color = it.color }
         initView()
     }
 
     private fun initView() {
+
         note?.run {
             supportActionBar?.title = lastChanged.format()
+            setToolbarColor(color)
 
+            removeEditListener()
             titleEt.setText(title)
             bodyEt.setText(body)
-
-            toolbar.setBackgroundColor(color.getColorInt(this@NoteActivity))
+            setEditListener()
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            onBackPressed()
-            true
-        }
+        android.R.id.home -> super.onBackPressed().let { true }
+        R.id.palette -> togglePalette().let { true }
+        R.id.delete -> deleteNote().let { true }
         else -> super.onOptionsItemSelected(item)
     }
 
+    private fun deleteNote() {
+        alert {
+            messageResource = R.string.delete_dialog_message
+            negativeButton(R.string.cancel_btn_title) { dialog -> dialog.dismiss() }
+            positiveButton(R.string.ok_bth_title) { model.deleteNote() }
+        }.show()
+    }
+
+    private fun togglePalette() {
+        if (colorPicker.isOpen) {
+            colorPicker.close()
+        } else {
+            colorPicker.open()
+        }
+    }
+
+    override fun onBackPressed() {
+        if (colorPicker.isOpen) {
+            colorPicker.close()
+            return
+        }
+        super.onBackPressed()
+    }
 
     private fun triggerSaveNote() {
         if (titleEt.text.length < 3 && bodyEt.text.length < 3) return
@@ -94,14 +151,16 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
         Handler().postDelayed({
             note = note?.copy(title = titleEt.text.toString(),
                     body = bodyEt.text.toString(),
-                    lastChanged = Date())
+                    lastChanged = Date(),
+                    color = color)
                     ?: createNewNote()
 
-            note?.let { viewModel.saveChanges(it) }
+            note?.let { model.saveChanges(it) }
         }, SAVE_DELAY)
     }
 
     private fun createNewNote(): Note = Note(UUID.randomUUID().toString(),
             titleEt.text.toString(),
-            bodyEt.text.toString())
+            bodyEt.text.toString(),
+            color)
 }

@@ -4,7 +4,7 @@ import com.geekbrains.geekbrainskotlin.data.Repository
 import com.geekbrains.geekbrainskotlin.data.errors.NoAuthException
 import com.geekbrains.geekbrainskotlin.ui.base.BaseViewModel
 
-class SplashViewModel(private val repository: Repository = Repository) : BaseViewModel<Boolean?, SplashViewState>() {
+class SplashViewModel(private val repository: Repository) : BaseViewModel<Boolean?, SplashViewState>() {
 
     fun requestUser() {
         repository.getCurrentUser().observeForever {

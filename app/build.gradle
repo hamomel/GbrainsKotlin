@@ -44,9 +44,14 @@ dependencies {
     // LiveData ViewModel
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
     //Firebase Firestore
-    implementation 'com.google.firebase:firebase-core:16.0.3'
-    implementation 'com.google.firebase:firebase-firestore:17.1.0'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-firestore:17.0.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.1.0'
+    //Anko
+    implementation "org.jetbrains.anko:anko-commons:0.10.7"
+    //Koin
+    implementation 'org.koin:koin-android:1.0.1'
+    implementation 'org.koin:koin-android-viewmodel:1.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

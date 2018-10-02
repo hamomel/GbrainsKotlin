@@ -4,14 +4,14 @@ import android.arch.lifecycle.Observer
 import com.geekbrains.geekbrainskotlin.data.Repository
 import com.geekbrains.geekbrainskotlin.data.errors.NoAuthException
 import com.geekbrains.geekbrainskotlin.data.model.Note
-import com.geekbrains.geekbrainskotlin.data.model.NoteResult
-import com.geekbrains.geekbrainskotlin.data.model.NoteResult.Error
-import com.geekbrains.geekbrainskotlin.data.model.NoteResult.Success
+import com.geekbrains.geekbrainskotlin.data.model.Result
+import com.geekbrains.geekbrainskotlin.data.model.Result.Error
+import com.geekbrains.geekbrainskotlin.data.model.Result.Success
 import com.geekbrains.geekbrainskotlin.ui.base.BaseViewModel
 
-class MainViewModel(val repository: Repository = Repository) : BaseViewModel<List<Note>?, MainViewState>() {
+class MainViewModel(val repository: Repository) : BaseViewModel<List<Note>?, MainViewState>() {
 
-    private val notesObserver = Observer<NoteResult> { t ->
+    private val notesObserver = Observer<Result> { t ->
         t?.let {
             viewStateLiveData.value = when (it) {
                 is Success<*> -> MainViewState(notes = it.data as? List<Note>)

@@ -3,6 +3,7 @@
 
 # and /app/build
 /app/build/
+/app/release/
 
 **/*.iml
 

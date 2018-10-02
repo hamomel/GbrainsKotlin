@@ -1,12 +1,9 @@
 package com.geekbrains.geekbrainskotlin.data
 
 import com.geekbrains.geekbrainskotlin.data.model.Note
-import com.geekbrains.geekbrainskotlin.data.provider.FireStoreProvider
 import com.geekbrains.geekbrainskotlin.data.provider.RemoteDataProvider
 
-object Repository {
-
-    private val remoteProvider: RemoteDataProvider = FireStoreProvider()
+class Repository(private val remoteProvider: RemoteDataProvider) {
 
     fun getNotes() = remoteProvider.subscribeToAllNotes()
 
@@ -15,5 +12,6 @@ object Repository {
     fun getNoteById(id: String) = remoteProvider.getNoteById(id)
 
     fun getCurrentUser() = remoteProvider.getCurrentUser()
+    fun deleteNote(noteId: String) = remoteProvider.deleteNote(noteId)
 }
 

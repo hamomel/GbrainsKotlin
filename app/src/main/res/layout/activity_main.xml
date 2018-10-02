@@ -31,6 +31,9 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_note"/>
 
+    <include layout="@layout/view_full_screen_progress"
+        android:id="@+id/progressView"/>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_height="wrap_content"
@@ -38,8 +41,8 @@
         app:fabSize="normal"
         android:layout_marginEnd="@dimen/padding_default"
         android:layout_marginBottom="@dimen/padding_default"
-        app:layout_anchorGravity="bottom|end"
         android:src="@drawable/ic_add_black_24dp"
+        app:layout_anchorGravity="bottom|end"
         app:layout_anchor="@id/mainRecycler"
         app:layout_behavior=".ui.common.FABBehavior"/>
 
