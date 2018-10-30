@@ -1,6 +1,7 @@
 package com.geekbrains.geekbrainskotlin.ui.main
 
 import android.arch.lifecycle.Observer
+import android.support.annotation.VisibleForTesting
 import com.geekbrains.geekbrainskotlin.data.Repository
 import com.geekbrains.geekbrainskotlin.data.errors.NoAuthException
 import com.geekbrains.geekbrainskotlin.data.model.Note
@@ -27,7 +28,8 @@ class MainViewModel(val repository: Repository) : BaseViewModel<List<Note>?, Mai
         repositoryNotes.observeForever(notesObserver)
     }
 
-    override fun onCleared() {
+    @VisibleForTesting
+    public override fun onCleared() {
         repositoryNotes.removeObserver(notesObserver)
     }
 }

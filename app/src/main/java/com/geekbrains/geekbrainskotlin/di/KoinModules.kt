@@ -18,7 +18,7 @@ val appModule = module {
     single { Repository(get()) }
 }
 
-val splasModule = module {
+val splashModule = module {
     viewModel { SplashViewModel(get()) }
 }
 

@@ -1,17 +1,17 @@
 package com.geekbrains.geekbrainskotlin
 
-import android.app.Application
+import android.support.multidex.MultiDexApplication
 import com.geekbrains.geekbrainskotlin.di.appModule
 import com.geekbrains.geekbrainskotlin.di.mainModule
 import com.geekbrains.geekbrainskotlin.di.noteModule
-import com.geekbrains.geekbrainskotlin.di.splasModule
+import com.geekbrains.geekbrainskotlin.di.splashModule
 import org.koin.android.ext.android.startKoin
 
-class App : Application() {
+class App : MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
 
-        startKoin(this, listOf(appModule, splasModule, mainModule, noteModule))
+        startKoin(this, listOf(appModule, splashModule, mainModule, noteModule))
     }
 }

@@ -30,13 +30,13 @@ class FireStoreProvider(private val firebaseAuth: FirebaseAuth,
             MutableLiveData<Result>().apply {
                  try {
                      getUserNotesCollection().addSnapshotListener { snapshot, e ->
-                         value = e?.let { throw it }
+                         value = e?.let { Result.Error(it) }
                                  ?: snapshot?.let {
                              val notes = it.documents.map { it.toObject(Note::class.java) }
                              Result.Success(notes)
                          }
                      }
-                 }catch (e: Throwable) {
+                 } catch (e: Throwable) {
                      value = Result.Error(e)
                  }
             }
@@ -50,7 +50,7 @@ class FireStoreProvider(private val firebaseAuth: FirebaseAuth,
                                 value = Result.Success(note)
                             }.addOnFailureListener {
                                 Log.d(TAG, "Error saving note $note, message: ${it.message}")
-                                throw it
+                                value = Result.Error(it)
                             }
                 } catch (e: Throwable) {
                     value = Result.Error(e)

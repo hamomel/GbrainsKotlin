@@ -1,5 +1,6 @@
 package com.geekbrains.geekbrainskotlin.ui.note
 
+import android.support.annotation.VisibleForTesting
 import com.geekbrains.geekbrainskotlin.data.Repository
 import com.geekbrains.geekbrainskotlin.data.model.Note
 import com.geekbrains.geekbrainskotlin.data.model.Result.Error
@@ -7,7 +8,7 @@ import com.geekbrains.geekbrainskotlin.data.model.Result.Success
 import com.geekbrains.geekbrainskotlin.ui.base.BaseViewModel
 import com.geekbrains.geekbrainskotlin.ui.note.NoteViewState.Data
 
-class NoteViewModel(val repository: Repository) : BaseViewModel<Data, NoteViewState>() {
+class NoteViewModel(private val repository: Repository) : BaseViewModel<Data, NoteViewState>() {
 
     private val currentNote: Note?
         get() = viewStateLiveData.value?.data?.note
