@@ -102,7 +102,7 @@ class NoteActivityTest {
     @Test
     fun should_show_note() {
         activityTestRule.launchActivity(null)
-        viewStateLiveData.postValue(NoteViewState(NoteViewState.Data(note = testNote)))
+        viewStateLiveData.postValue(NoteViewState(NoteViewState.NoteData(note = testNote)))
 
         onView(withId(R.id.titleEt)).check(matches(withText(testNote.title)))
         onView(withId(R.id.bodyEt)).check(matches(withText(testNote.body)))

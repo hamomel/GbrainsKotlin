@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
+class MainActivity : BaseActivity<List<Note>?>() {
 
     companion object {
         fun getStartIntent(context: Context) = Intent(context, MainActivity::class.java)
@@ -37,9 +37,8 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
         fab.setOnClickListener { openNoteScreen(null) }
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean =
-           menuInflater.inflate(R.menu.menu_main, menu).let { true }
+            menuInflater.inflate(R.menu.menu_main, menu).let { true }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {

@@ -2,7 +2,6 @@ package com.geekbrains.geekbrainskotlin.ui.note
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
@@ -14,8 +13,10 @@ import com.geekbrains.geekbrainskotlin.data.model.Note
 import com.geekbrains.geekbrainskotlin.extensions.format
 import com.geekbrains.geekbrainskotlin.extensions.getColorInt
 import com.geekbrains.geekbrainskotlin.ui.base.BaseActivity
-import com.geekbrains.geekbrainskotlin.ui.note.NoteViewState.Data
+import com.geekbrains.geekbrainskotlin.ui.note.NoteViewState.NoteData
 import kotlinx.android.synthetic.main.activity_note.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.startActivity
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -23,7 +24,7 @@ import java.util.*
 
 private const val SAVE_DELAY = 1000L
 
-class NoteActivity : BaseActivity<Data, NoteViewState>() {
+class NoteActivity : BaseActivity<NoteData>() {
 
     companion object {
         private val EXTRA_NOTE_ID = NoteActivity::class.java.name + "extra.NOTE_ID"
@@ -77,7 +78,9 @@ class NoteActivity : BaseActivity<Data, NoteViewState>() {
 
     private fun setEditListener() {
         titleEt.addTextChangedListener(textChangeListener)
+        titleEt.setSelection(titleEt.text.length)
         bodyEt.addTextChangedListener(textChangeListener)
+        bodyEt.setSelection(bodyEt.text.length)
     }
 
     private fun removeEditListener() {
@@ -92,7 +95,7 @@ class NoteActivity : BaseActivity<Data, NoteViewState>() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean =
             menuInflater.inflate(R.menu.note_menu, menu).let { true }
 
-    override fun renderData(data: Data) {
+    override fun renderData(data: NoteData) {
         if (data.isDeleted) finish()
         progressView.visibility = if (noteId != null && data.note == null) View.VISIBLE else View.GONE
 
@@ -102,7 +105,6 @@ class NoteActivity : BaseActivity<Data, NoteViewState>() {
     }
 
     private fun initView() {
-
         note?.run {
             supportActionBar?.title = lastChanged.format()
             setToolbarColor(color)
@@ -148,7 +150,9 @@ class NoteActivity : BaseActivity<Data, NoteViewState>() {
     private fun triggerSaveNote() {
         if (titleEt.text.length < 3 && bodyEt.text.length < 3) return
 
-        Handler().postDelayed({
+        launch {
+            delay(SAVE_DELAY)
+
             note = note?.copy(title = titleEt.text.toString(),
                     body = bodyEt.text.toString(),
                     lastChanged = Date(),
@@ -156,7 +160,7 @@ class NoteActivity : BaseActivity<Data, NoteViewState>() {
                     ?: createNewNote()
 
             note?.let { model.saveChanges(it) }
-        }, SAVE_DELAY)
+        }
     }
 
     private fun createNewNote(): Note = Note(UUID.randomUUID().toString(),

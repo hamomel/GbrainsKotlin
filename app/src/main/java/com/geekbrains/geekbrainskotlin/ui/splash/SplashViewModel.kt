@@ -3,16 +3,15 @@ package com.geekbrains.geekbrainskotlin.ui.splash
 import com.geekbrains.geekbrainskotlin.data.Repository
 import com.geekbrains.geekbrainskotlin.data.errors.NoAuthException
 import com.geekbrains.geekbrainskotlin.ui.base.BaseViewModel
+import kotlinx.coroutines.launch
 
-class SplashViewModel(private val repository: Repository) : BaseViewModel<Boolean?, SplashViewState>() {
+class SplashViewModel(private val repository: Repository) : BaseViewModel<Boolean>() {
 
     fun requestUser() {
-        repository.getCurrentUser().observeForever {
-            viewStateLiveData.value = if (it != null) {
-                SplashViewState(isAuth = true)
-            } else {
-                SplashViewState(error = NoAuthException())
-            }
+        launch {
+            repository.getCurrentUser()?.let {
+                setData(true)
+            } ?: setError(NoAuthException())
         }
     }
 }

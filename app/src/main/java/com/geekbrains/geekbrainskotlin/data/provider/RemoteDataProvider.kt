@@ -1,17 +1,17 @@
 package com.geekbrains.geekbrainskotlin.data.provider
 
-import android.arch.lifecycle.LiveData
 import com.geekbrains.geekbrainskotlin.data.model.Note
 import com.geekbrains.geekbrainskotlin.data.model.Result
 import com.geekbrains.geekbrainskotlin.data.model.User
+import kotlinx.coroutines.channels.ReceiveChannel
 
 interface RemoteDataProvider {
 
-    fun subscribeToAllNotes(): LiveData<Result>
-    fun getNoteById(id: String): LiveData<Result>
-    fun saveNote(note: Note) : LiveData<Result>
+    fun subscribeToAllNotes(): ReceiveChannel<Result>
+    suspend fun getNoteById(id: String): Note
+    suspend fun saveNote(note: Note) : Note
 
-    fun getCurrentUser(): LiveData<User?>
+    suspend fun getCurrentUser(): User?
 
-    fun deleteNote(noteId: String): LiveData<Result>
+    suspend fun deleteNote(noteId: String)
 }

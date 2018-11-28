@@ -1,47 +1,49 @@
 package com.geekbrains.geekbrainskotlin.ui.note
 
-import android.support.annotation.VisibleForTesting
 import com.geekbrains.geekbrainskotlin.data.Repository
 import com.geekbrains.geekbrainskotlin.data.model.Note
-import com.geekbrains.geekbrainskotlin.data.model.Result.Error
-import com.geekbrains.geekbrainskotlin.data.model.Result.Success
 import com.geekbrains.geekbrainskotlin.ui.base.BaseViewModel
-import com.geekbrains.geekbrainskotlin.ui.note.NoteViewState.Data
+import com.geekbrains.geekbrainskotlin.ui.note.NoteViewState.NoteData
+import kotlinx.coroutines.launch
 
-class NoteViewModel(private val repository: Repository) : BaseViewModel<Data, NoteViewState>() {
+class NoteViewModel(private val repository: Repository) : BaseViewModel<NoteData>() {
 
     private val currentNote: Note?
-        get() = viewStateLiveData.value?.data?.note
+        get() = getViewState().poll()?.note
 
     fun saveChanges(note: Note) {
-        viewStateLiveData.value = NoteViewState(Data(note = note))
-    }
-
-    override fun onCleared() {
-        currentNote?.let { repository.saveNote(it) }
+        setData(NoteData(note = note))
     }
 
     fun loadNote(noteId: String) {
-        repository.getNoteById(noteId).observeForever { t ->
-            t?.let {
-                viewStateLiveData.value = when (t) {
-                    is Success<*> -> NoteViewState(Data(note = t.data as? Note))
-                    is Error -> NoteViewState(error = t.error)
+        launch {
+            try {
+                repository.getNoteById(noteId).let {
+                    setData(NoteData(note = it))
                 }
+            } catch (e: Throwable) {
+                setError(e)
             }
         }
     }
 
+
     fun deleteNote() {
-        currentNote?.let {
-            repository.deleteNote(it.id).observeForever { t ->
-                t?.let {
-                    viewStateLiveData.value = when (it) {
-                        is Success<*> -> NoteViewState(Data(isDeleted = true))
-                        is Error -> NoteViewState(error = it.error)
-                    }
-                }
+        launch {
+            try {
+                currentNote?.let { repository.deleteNote(it.id) }
+                setData(NoteData(isDeleted = true))
+            } catch (e: Throwable) {
+                setError(e)
             }
+        }
+    }
+
+
+    override fun onCleared() {
+        launch {
+            currentNote?.let { repository.saveNote(it) }
+            super.onCleared()
         }
     }
 }
